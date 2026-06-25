@@ -1,8 +1,7 @@
 #!/bin/bash
 
 export LOCATION="francecentral"
-export RESOURCE_GROUP="abenslimaneRG"
-export NAME="abdel"
+export RESOURCE_GROUP="${RESOURCE_GROUP:-abenslimaneRG}"
 
 export STORAGE_ACCOUNT="stabdelcli6594"
 export APP_SERVICE_PLAN="plan-abdel-cli"

@@ -1,0 +1,58 @@
+name: Deploy Azure CLI Infrastructure
+
+on:
+  workflow_dispatch:
+    inputs:
+      resource_group:
+        description: "Nom du Resource Group existant"
+        required: true
+        type: string
+        default: "abenslimaneRG"
+
+permissions:
+  id-token: write
+  contents: read
+
+env:
+  RESOURCE_GROUP: ${{ github.event.inputs.resource_group }}
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout du dépôt
+        uses: actions/checkout@v4
+
+      - name: Connexion Azure OIDC
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Vérifier le Resource Group
+        run: |
+          if ! az group show --name "$RESOURCE_GROUP" >/dev/null 2>&1; then
+            echo "Resource Group introuvable : $RESOURCE_GROUP"
+            exit 1
+          fi
+          echo "Resource Group trouvé : $RESOURCE_GROUP"
+
+      - name: Rendre les scripts exécutables
+        run: chmod +x scripts/*.sh
+
+      - name: Storage Account
+        run: ./scripts/03-storage-account.sh
+
+      - name: App Service
+        run: ./scripts/04-app-service.sh
+
+      - name: Function App
+        run: ./scripts/05-function-app.sh
+
+      - name: Container Instance
+        run: ./scripts/06-container-instance.sh
+
+      - name: Lister les ressources Azure
+        run: az resource list --resource-group "$RESOURCE_GROUP" --output table
