@@ -56,3 +56,9 @@ jobs:
 
       - name: Lister les ressources Azure
         run: az resource list --resource-group "$RESOURCE_GROUP" --output table
+
+      - name: Network
+        run: ./scripts/07-network.sh
+
+      - name: Lister les ressources Azure
+        run: az resource list --resource-group "$RESOURCE_GROUP" --output table
